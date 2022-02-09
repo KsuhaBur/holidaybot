@@ -8,7 +8,19 @@ from aiogram.types import ReplyKeyboardRemove, \
     InlineKeyboardMarkup, InlineKeyboardButton
 import random
 
+import get_holiday
+
 from config import TOKEN
+
+import requests
+from bs4 import BeautifulSoup
+
+url = 'https://kakoyprazdnik.com/'
+response = requests.get(url)
+soup = BeautifulSoup(response.text, 'lxml')
+
+# holidays = soup.find_all('h4')
+
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
@@ -18,10 +30,11 @@ dp = Dispatcher(bot)
 async def welcome(message: types.Message):
 
     markup = ReplyKeyboardMarkup(resize_keyboard=True)
-    item = KeyboardButton('Рандомное число')
+    item = KeyboardButton('Какой сегодня праздник?')
     markup.add(item)
 
-    await message.reply("Привет! Я персональный бот от Ксюхи", reply_markup=markup)
+    await message.reply("Привет! Я персональный бэтмен-бот от Ксюхи\n"
+                        "", reply_markup=markup)
 
 
 # @dp.message_handler(commands=['help'])
@@ -31,8 +44,8 @@ async def welcome(message: types.Message):
 
 @dp.message_handler()
 async def echo_message(msg: types.Message):
-    if msg.text == 'Рандомное число':
-        await bot.send_message(msg.from_user.id, str(random.randint(0, 100)))
+    if msg.text == 'Какой сегодня праздник?':
+        await bot.send_message(msg.from_user.id, str(get_holiday.get_all_holidays()))
     else:
         await bot.send_message(msg.from_user.id, msg.text)
 
